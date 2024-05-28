@@ -4,21 +4,20 @@ namespace Player.Shooting
 {
     public class PlayerShooting : MonoBehaviour
     {
-        [SerializeField] private float projectileSpeed;
-        [SerializeField] private float shootingDelay = 0.1f;
-        [SerializeField] private Bullet bulletPrefab;
+        [Header("Bullet settings")] 
+        [SerializeField] private ShootingConfig config;
 
         private BulletFactory _bulletFactory;
         private CustomPlayerInput _playerInput;
 
         private float _shootingTimer;
-        
+
         private bool _isInitialized;
-    
+
         public void Init(CustomPlayerInput input)
         {
             if (_isInitialized) return;
-            _bulletFactory = new BulletFactory(bulletPrefab);
+            _bulletFactory = new BulletFactory(config.BulletPrefab);
             _playerInput = input;
             _isInitialized = true;
         }
@@ -30,9 +29,9 @@ namespace Player.Shooting
             if (!_playerInput.IsShooting) return;
             if (_shootingTimer <= 0)
             {
-                var bullet = _bulletFactory.CreateBullet(transform.position);
-                bullet.SetVelocity(_playerInput.ShootingDirection * projectileSpeed);
-                _shootingTimer = shootingDelay;
+                Bullet bullet = _bulletFactory.CreateBullet(transform.position);
+                bullet.SetVelocity(_playerInput.ShootingDirection * config.ProjectileSpeed);
+                _shootingTimer = config.ShootingDelay;
             }
         }
     }
