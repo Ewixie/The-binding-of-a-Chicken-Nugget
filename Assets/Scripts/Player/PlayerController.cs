@@ -20,7 +20,6 @@ namespace Player
         private void FixedUpdate()
         {
             rb.velocity = _playerInput.Movement * speed;
-            
         }
     }
 }

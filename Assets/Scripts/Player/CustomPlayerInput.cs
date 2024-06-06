@@ -7,7 +7,9 @@ namespace Player
     [Serializable]
     public class CustomPlayerInput
     {
+        public Vector2 RawMovement => new Vector2(Mathf.Round(_movement.x), Mathf.Round(_movement.y));
         public Vector2 Movement => _movement;
+        public Vector2 RawShooting => new Vector2(Mathf.Round(_shootingDirection.x), Mathf.Round(_shootingDirection.y));
         public Vector2 ShootingDirection => _shootingDirection;
         public bool IsShooting => _shootingDirection.magnitude > 0;
     
