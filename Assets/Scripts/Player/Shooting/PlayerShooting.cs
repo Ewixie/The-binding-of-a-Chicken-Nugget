@@ -1,3 +1,6 @@
+using Entities.Data;
+using Player.Data;
+using Player.Shooting.Projectile;
 using UnityEngine;
 
 namespace Player.Shooting
@@ -12,12 +15,14 @@ namespace Player.Shooting
 
         private float _shootingTimer;
 
+        private PlayerData _data;
         private bool _isInitialized;
 
-        public void Init(CustomPlayerInput input)
+        public void Init(PlayerData data,CustomPlayerInput input)
         {
             if (_isInitialized) return;
             _bulletFactory = new BulletFactory(config.BulletPrefab);
+            _data = data;
             _playerInput = input;
             _isInitialized = true;
         }

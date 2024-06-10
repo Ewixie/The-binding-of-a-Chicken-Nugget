@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Particles;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Player.Shooting
+namespace Player.Shooting.Projectile
 {
     public class BulletView : MonoBehaviour
     {

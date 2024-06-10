@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Pool;
 
-namespace Player.Shooting
+namespace Particles
 {
     public class ParticleFactory
     {

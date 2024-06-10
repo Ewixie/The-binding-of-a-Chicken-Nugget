@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Entities.Data;
+using UnityEngine;
 
-namespace Enemies
+namespace Entities.Enemies.Movement
 {
     public interface IEnemyMovement
     {

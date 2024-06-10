@@ -1,4 +1,4 @@
-﻿namespace Player.Shooting
+﻿namespace Entities
 {
     public interface IDamageable
     {

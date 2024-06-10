@@ -1,14 +1,22 @@
+using System.Collections;
+using Player.Data;
 using UnityEngine;
 
 namespace Player
 {
    public class CharacterView : MonoBehaviour
    {
-      [SerializeField] private bool facingLeft;
+      [SerializeField] private SpriteRenderer sr;
       [SerializeField] private Animator animator;
+      [SerializeField] private bool facingLeft;
+      [Space(10)] 
+      [SerializeField][Min(0)] private float damageAnimationTime = 0.2f;
+      [SerializeField] private Color damageColor = Color.red;
+
+      private Coroutine _colorAnimationCoroutine;
+      private Color _baseColor;
       private Vector3 _baseScale;
       private CustomPlayerInput _playerInput;
-      
       
       #region Animator Bools
 
@@ -18,16 +26,41 @@ namespace Player
       private static readonly int GoingDown= Animator.StringToHash("GoingDown");
 
       #endregion
-      
-      
+
+      private PlayerData _data;
       private bool _isInitialized;
 
-      public void Init(CustomPlayerInput input)
+      public void Init(PlayerData data, CustomPlayerInput input)
       {
          if (_isInitialized) return;
          _playerInput = input;
+         _data = data;
          _baseScale = transform.localScale;
+         _baseColor = sr.color;
+
+         _data.playerHealth.TookDamage += OnDamageTaken;
+         
          _isInitialized = true;
+      }
+
+      private void OnDamageTaken()
+      {
+         if (_colorAnimationCoroutine is not null) StopCoroutine(_colorAnimationCoroutine);
+         _colorAnimationCoroutine = StartCoroutine(TookDamageAnimation());
+      }
+
+      private IEnumerator TookDamageAnimation()
+      {
+         float elapsedTime = 0f;
+         sr.color = damageColor;
+         while (elapsedTime <= damageAnimationTime)
+         {
+            elapsedTime += Time.deltaTime;
+            sr.color = Color.Lerp(damageColor, _baseColor, elapsedTime / damageAnimationTime);
+            yield return null;
+         }
+
+         _colorAnimationCoroutine = null;
       }
 
       private void Update()

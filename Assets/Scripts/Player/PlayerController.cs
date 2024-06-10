@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Player.Data;
+using UnityEngine;
 
 namespace Player
 {
@@ -9,11 +10,14 @@ namespace Player
 
         private CustomPlayerInput _playerInput;
         private bool _isInitialized;
+
+        private PlayerData _data;
     
-        public void Init(CustomPlayerInput input)
+        public void Init(PlayerData data, CustomPlayerInput input)
         {
             if (_isInitialized) return;
             _playerInput = input;
+            _data = data;
             _isInitialized = true;
         }
 

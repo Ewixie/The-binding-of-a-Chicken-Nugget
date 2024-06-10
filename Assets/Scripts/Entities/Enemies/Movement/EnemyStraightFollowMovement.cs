@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Entities.Data;
+using UnityEngine;
 
-namespace Enemies
+namespace Entities.Enemies.Movement
 {
     public class EnemyStraightFollowMovement : IEnemyMovement
     {
@@ -17,6 +18,7 @@ namespace Enemies
 
         public void UpdateMovement()
         {
+            if (_target is null || !_target.gameObject.activeSelf) return;
             Vector2 directionToPlayer = (_target.position - _rb.transform.position).normalized;
             _rb.AddForce(directionToPlayer * _config.Acceleration);
             if (_rb.velocity.magnitude >= _config.MaxSpeed)

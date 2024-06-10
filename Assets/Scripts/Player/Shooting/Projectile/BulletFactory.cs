@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Pool;
 
-namespace Player.Shooting
+namespace Player.Shooting.Projectile
 {
     public class BulletFactory
     {

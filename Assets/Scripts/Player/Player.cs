@@ -1,3 +1,5 @@
+using Entities;
+using Player.Data;
 using Player.Shooting;
 using UnityEngine;
 
@@ -9,11 +11,12 @@ namespace Player
         public Transform PlayerTransform => playerController.transform;
 
         [Header("Player")] 
+        [SerializeField] private PlayerData data;
         [SerializeField] private CustomPlayerInput playerInput;
-        [Space(10)]
-        [SerializeField] private PlayerController playerController;
+        [Space(10)] [SerializeField] private PlayerController playerController;
         [SerializeField] private PlayerShooting playerShooting;
         [SerializeField] private CharacterView characterView;
+        [SerializeField] private PlayerDamageable playerDamageable;
 
         private void Awake()
         {
@@ -22,18 +25,23 @@ namespace Player
                 Destroy(gameObject);
                 return;
             }
-            
+
             Instance = this;
             
+            data.Init();
             playerInput.Init();
-            playerController.Init(playerInput);
-            playerShooting.Init(playerInput);
-            characterView.Init(playerInput);
+            playerController.Init(data, playerInput);
+            playerShooting.Init(data, playerInput);
+            characterView.Init(data, playerInput);
+            playerDamageable.Init(data);
         }
 
         private void Update()
         {
             playerInput.UpdateInput();
         }
+
+
+       
     }
 }

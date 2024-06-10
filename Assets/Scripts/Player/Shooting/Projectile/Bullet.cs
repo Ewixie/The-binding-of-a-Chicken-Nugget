@@ -1,8 +1,9 @@
 ﻿using System;
+using Entities;
 using UnityEngine;
 using Utils;
 
-namespace Player.Shooting
+namespace Player.Shooting.Projectile
 {
     public class Bullet : MonoBehaviour
     {

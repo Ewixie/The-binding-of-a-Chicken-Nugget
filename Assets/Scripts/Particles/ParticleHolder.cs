@@ -1,20 +1,23 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(ParticleSystem))]
-public class ParticleHolder : MonoBehaviour
+namespace Particles
 {
-    [SerializeField] private ParticleSystem particle;
-    public event Action ParticleSystemStopped;
-    private void OnParticleSystemStopped()
+    [RequireComponent(typeof(ParticleSystem))]
+    public class ParticleHolder : MonoBehaviour
     {
-        ParticleSystemStopped?.Invoke();
-    }
-    public ParticleSystem GetParticleSystem()
-    {
-        if (particle is not null) return particle;
-        //particle is null
-        particle = GetComponent<ParticleSystem>();
-        return particle;
+        [SerializeField] private ParticleSystem particle;
+        public event Action ParticleSystemStopped;
+        private void OnParticleSystemStopped()
+        {
+            ParticleSystemStopped?.Invoke();
+        }
+        public ParticleSystem GetParticleSystem()
+        {
+            if (particle is not null) return particle;
+            //particle is null
+            particle = GetComponent<ParticleSystem>();
+            return particle;
+        }
     }
 }

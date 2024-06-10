@@ -1,28 +1,29 @@
-﻿using Player.Shooting;
+﻿using Entities.Enemies.Movement;
 using UnityEngine;
 
-namespace Enemies
+namespace Entities.Enemies
 {
     public abstract class Enemy : MonoBehaviour, IDamageable
     {
         [SerializeField] private float startingHealth;
 
         protected IEnemyMovement EnemyMovement;
-        
-        private float _currentHealth;
+        public float CurrentHealth { get; protected set; }
         
         private void Start()
         {
-            _currentHealth = startingHealth;
+            CurrentHealth = startingHealth;
             Init();
         }
 
         protected abstract void Init();
 
+
         public virtual void TakeDamage(float damage)
         {
-            _currentHealth -= damage;
-            if (_currentHealth <= 0)
+            if (damage <= 0) return;
+            CurrentHealth -= damage;
+            if (CurrentHealth <= 0)
             {
                 Destroy(gameObject);
             }
