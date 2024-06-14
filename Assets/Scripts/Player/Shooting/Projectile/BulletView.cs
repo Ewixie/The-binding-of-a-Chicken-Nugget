@@ -11,7 +11,6 @@ namespace Player.Shooting.Projectile
         [SerializeField] private SpriteRenderer sprite;
         [SerializeField] private float rotationSpeed;
         
-
         private ParticleFactory _particleFactory;
         private float _rotation;
         private void Start()
