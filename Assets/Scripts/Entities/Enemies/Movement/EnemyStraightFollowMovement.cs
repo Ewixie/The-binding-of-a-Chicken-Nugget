@@ -16,11 +16,11 @@ namespace Entities.Enemies.Movement
             _config = config;
         }
 
-        public void UpdateMovement()
+        public void UpdateMovement(float deltaTime)
         {
             if (_target is null || !_target.gameObject.activeSelf) return;
             Vector2 directionToPlayer = (_target.position - _rb.transform.position).normalized;
-            _rb.AddForce(directionToPlayer * _config.Acceleration);
+            _rb.AddForce(directionToPlayer * _config.Acceleration * deltaTime);
             if (_rb.velocity.magnitude >= _config.MaxSpeed)
             {
                 _rb.velocity = _rb.velocity.normalized * _config.MaxSpeed;

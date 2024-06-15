@@ -2,7 +2,7 @@
 
 namespace Entities.Data
 {
-    [CreateAssetMenu(fileName = "New Movement Config", menuName = "Movement")]
+    [CreateAssetMenu(fileName = "New Movement Config", menuName = "Entities/Movement")]
     public class MovementConfig : ScriptableObject
     {
         public float MaxSpeed => maxSpeed;

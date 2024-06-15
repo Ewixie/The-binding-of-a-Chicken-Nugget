@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 namespace Rooms
@@ -6,12 +7,15 @@ namespace Rooms
     public class Door : MonoBehaviour
     {
         [SerializeField] private float teleportOffset = 1;
+        public bool IsOpen => _isOpen;
         private bool _isOpen;
         private Door _connectedDoor;
 
         private Vector2Int _selfDirection;
- 
-
+        public event Action EnteredRoom;
+        public event Action Opened;
+        public event Action Closed;
+        
         public void Init(Door connectedDoor, Vector2Int selfDirection)
         {
             Debug.Log("Door init");
@@ -41,19 +45,26 @@ namespace Rooms
 
         public void GoThrough(Transform otherTransform)
         {
-            Debug.Log("Teleporting...");
             otherTransform.position = _connectedDoor.transform.position;
             otherTransform.position -= ((Vector3) ((Vector2) _connectedDoor.GetRelativeToRoomDirection())) * _connectedDoor.GetTeleportOffset();
+            _connectedDoor.Entered();
+        }
+
+        public void Entered()
+        {
+            EnteredRoom?.Invoke();
         }
 
         public void Open()
         {
             _isOpen = true;
+            Opened?.Invoke();
         }
 
         public void Close()
         {
             _isOpen = false;
+            Closed?.Invoke();
         }
     }
 }

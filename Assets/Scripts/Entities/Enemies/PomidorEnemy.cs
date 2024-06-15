@@ -27,7 +27,7 @@ namespace Entities.Enemies
 
         private void Update()
         {
-            EnemyMovement.UpdateMovement();
+            EnemyMovement.UpdateMovement(Time.deltaTime);
         }
         
     }

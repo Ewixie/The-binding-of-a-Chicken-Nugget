@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Entities.Data
 {
-    [CreateAssetMenu(fileName = "New Shooting Config", menuName = "Shooting")]
+    [CreateAssetMenu(fileName = "New Shooting Config", menuName = "Entities/Shooting")]
     public class ShootingConfig : ScriptableObject
     {
         public float ProjectileSpeed => projectileSpeed;

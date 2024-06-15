@@ -1,4 +1,5 @@
-﻿using Entities.Enemies.Movement;
+﻿using System;
+using Entities.Enemies.Movement;
 using UnityEngine;
 
 namespace Entities.Enemies
@@ -6,6 +7,7 @@ namespace Entities.Enemies
     public abstract class Enemy : MonoBehaviour, IDamageable
     {
         [SerializeField] private float startingHealth;
+        public event Action Died;
 
         protected IEnemyMovement EnemyMovement;
         public float CurrentHealth { get; protected set; }
@@ -25,6 +27,7 @@ namespace Entities.Enemies
             CurrentHealth -= damage;
             if (CurrentHealth <= 0)
             {
+                Died?.Invoke();
                 Destroy(gameObject);
             }
         }

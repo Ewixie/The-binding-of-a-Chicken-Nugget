@@ -12,7 +12,8 @@ namespace Rooms
     {
         [SerializeField] private int seed;
         [SerializeField] private float randomMagicNumber = 0.5f;
-        [SerializeField] private Room roomPrefab;
+        [SerializeField] private Room startRoom;
+        [SerializeField] private List<Room> roomPrefabs;
         [SerializeField] private int maxRooms = 10;
         [SerializeField] private int minRooms = 6;
 
@@ -27,6 +28,8 @@ namespace Rooms
         private Queue<Vector2Int> _roomQueue = new Queue<Vector2Int>();
 
         private int[,] _roomGrid;
+        
+        private Vector2Int _startIndex;
 
         private bool _generationComplete;
 
@@ -46,10 +49,10 @@ namespace Rooms
 
             Vector2Int initialRoomIndex = new Vector2Int(_gridSizeX / 2, _gridSizeY / 2);
             StartRoomGenerationFromRoom(initialRoomIndex);
-            StartCoroutine(GenerateRooms());
+            GenerateRooms();
         }
 
-        private IEnumerator GenerateRooms()
+        private void GenerateRooms()
         {
             while (true)
             {
@@ -63,7 +66,6 @@ namespace Rooms
                     TryGenerateRoom(new Vector2Int(gridX + 1, gridY));
                     TryGenerateRoom(new Vector2Int(gridX, gridY + 1));
                     TryGenerateRoom(new Vector2Int(gridX, gridY - 1));
-                    yield return null;
                 }
                 else if (!_generationComplete)
                 {
@@ -76,11 +78,12 @@ namespace Rooms
 
         private void StartRoomGenerationFromRoom(Vector2Int roomIndex)
         {
+            _startIndex = roomIndex;
             int x = roomIndex.x;
             int y = roomIndex.y;
             _roomGrid[x, y] = 1;
             _roomQueue.Enqueue(roomIndex);
-            var initialRoom = Instantiate(roomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
+            var initialRoom = Instantiate(startRoom, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
             initialRoom.RoomIndex = roomIndex;
             initialRoom.Init();
             _rooms.Add(initialRoom); 
@@ -97,17 +100,21 @@ namespace Rooms
             if (_rooms.Count >= maxRooms)
                 return false;
             float random = Random.value;
-            if (Random.value < randomMagicNumber) // && roomIndex != Vector2Int.zero
+            if (random < randomMagicNumber) 
                 return false;
-
+            if (roomIndex == _startIndex)
+                return false;
             if (CountAdjacentRooms(roomIndex) > 1)
+                return false;
+            if (_roomGrid[x, y] != 0)
                 return false;
 
 
             _roomQueue.Enqueue(roomIndex);
             _roomGrid[x, y] = 1;
 
-            var newRoom = Instantiate(roomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
+            var randomRoomPrefab = roomPrefabs[Random.Range(0, roomPrefabs.Count)];
+            var newRoom = Instantiate(randomRoomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
             newRoom.RoomIndex = roomIndex;
             newRoom.name = $"Room-{_rooms.Count}";
             _rooms.Add(newRoom);
