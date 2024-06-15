@@ -9,6 +9,7 @@ namespace Managers
     {
         public static LevelManger Instance;
 
+        [SerializeField] private SceneField mainMenu;
         [SerializeField] private SceneField playerScene;
         [SerializeField] private SceneField startingStageScene;
 
@@ -24,6 +25,16 @@ namespace Managers
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+        
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
+
+        public void LoadMenu()
+        {
+            SceneManager.LoadScene(mainMenu);   
         }
 
         public void LoadNewGame()

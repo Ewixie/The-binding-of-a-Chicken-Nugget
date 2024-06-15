@@ -21,6 +21,11 @@ namespace CustomCamera
 
             Instance = this;
         }
+        
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
 
         public void SetCamera(CinemachineVirtualCamera newCamera)
         {

@@ -6,28 +6,31 @@ namespace Data
     public class ProgressManager : MonoBehaviour
     {
         public static ProgressManager Instance;
-        
+
         private RecordsData _recordsData;
         private CurrentRunData _currentRunData;
 
         public RecordsData GetRecordsData()
         {
-            if (_recordsData is null) _recordsData = (RecordsData) DataBase.Read<RecordsData>();
+            if (_recordsData is null) _recordsData = (RecordsData)DataBase.Read<RecordsData>();
             if (_recordsData is null)
             {
                 _recordsData = new RecordsData();
                 DataBase.Save(_recordsData);
             }
+
             return _recordsData;
         }
+
         public CurrentRunData GetCurrentRunData()
         {
-            if (_currentRunData is null) _currentRunData = (CurrentRunData) DataBase.Read<CurrentRunData>();
+            if (_currentRunData is null) _currentRunData = (CurrentRunData)DataBase.Read<CurrentRunData>();
             if (_currentRunData is null)
             {
                 _currentRunData = new CurrentRunData();
                 DataBase.Save(_currentRunData);
             }
+
             return _currentRunData;
         }
 
@@ -36,19 +39,23 @@ namespace Data
             _currentRunData = new CurrentRunData();
         }
 
+        public void UpdateRecord()
+        {
+            if (GetCurrentRunData().enemiesKilled > GetRecordsData().inRunMaxEnemiesKilled)
+            {
+                GetRecordsData().inRunMaxEnemiesKilled = GetCurrentRunData().enemiesKilled;
+            }
+
+            if (GetCurrentRunData().stage > GetRecordsData().maxStageAchieved)
+            {
+                GetRecordsData().maxStageAchieved = GetCurrentRunData().stage;
+            }
+        }
+
 
         private void OnApplicationQuit()
         {
-            if (_currentRunData.enemiesKilled > _recordsData.inRunMaxEnemiesKilled)
-            {
-                _recordsData.inRunMaxEnemiesKilled = _currentRunData.enemiesKilled;
-            }
-
-            if (_currentRunData.stage > _recordsData.maxStageAchieved)
-            {
-                _recordsData.maxStageAchieved = _currentRunData.stage;
-            }
-            
+            UpdateRecord();
             DataBase.Save(_recordsData);
             DataBase.Save(_currentRunData);
         }
@@ -65,6 +72,9 @@ namespace Data
             DontDestroyOnLoad(gameObject);
         }
         
-        
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
     }
 }

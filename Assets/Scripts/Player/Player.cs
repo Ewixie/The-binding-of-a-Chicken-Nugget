@@ -36,13 +36,15 @@ namespace Player
             characterView.Init(data, playerInput);
             playerDamageable.Init(data);
         }
+        
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
 
         private void Update()
         {
             playerInput.UpdateInput();
         }
-
-
-       
     }
 }

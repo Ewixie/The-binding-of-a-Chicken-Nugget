@@ -22,11 +22,18 @@ namespace Managers
             
             Instance = this;
         }
+        
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
 
         private void Start()
         {
             GameManager.Instance.Paused += OnPause;
             GameManager.Instance.Unpaused += OnUnpause;
+            _pausedTimeScale = 1;
+            Time.timeScale = 1;
         }
 
         private void OnPause()

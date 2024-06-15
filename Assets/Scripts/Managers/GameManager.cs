@@ -24,7 +24,12 @@ namespace Managers
             ProgressManager.Instance.CreateNewRunData();
             Instance = this;
         }
-        
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
+
         [Button]
         public void Pause()
         {
@@ -35,8 +40,16 @@ namespace Managers
         [Button]
         public void Unpause()
         {
-            IsPaused = true;
+            IsPaused = false;
             Unpaused?.Invoke();
+        }
+
+        public void RestartRun()
+        {
+            ProgressManager.Instance.UpdateRecord();
+            ProgressManager.Instance.CreateNewRunData(); 
+            LevelManger.Instance.LoadNewGame();
+            Unpause();
         }
 
         public void MoveToNextStage()
