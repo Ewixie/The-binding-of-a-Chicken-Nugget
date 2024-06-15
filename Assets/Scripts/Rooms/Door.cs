@@ -18,7 +18,6 @@ namespace Rooms
         
         public void Init(Door connectedDoor, Vector2Int selfDirection)
         {
-            Debug.Log("Door init");
             _connectedDoor = connectedDoor;
             _selfDirection = selfDirection;
             Open();

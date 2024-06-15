@@ -1,5 +1,6 @@
-using System.Collections;
+
 using System.Collections.Generic;
+using System.Linq;
 using NaughtyAttributes;
 using UnityEngine;
 using Quaternion = UnityEngine.Quaternion;
@@ -10,13 +11,17 @@ namespace Rooms
 {
     public class RoomManager : MonoBehaviour
     {
+        [SerializeField] private bool generateRandomSeedOnStart = true;
         [SerializeField] private int seed;
         [SerializeField] private float randomMagicNumber = 0.5f;
         [SerializeField] private Room startRoom;
+        [SerializeField] private Room endRoom;
         [SerializeField] private List<Room> roomPrefabs;
         [SerializeField] private int maxRooms = 10;
         [SerializeField] private int minRooms = 6;
 
+        private bool _endRoomSpawned;
+        
         private readonly int _roomWidth = 20;
         private readonly int _roomHeight = 12;
 
@@ -28,7 +33,7 @@ namespace Rooms
         private Queue<Vector2Int> _roomQueue = new Queue<Vector2Int>();
 
         private int[,] _roomGrid;
-        
+
         private Vector2Int _startIndex;
 
         private bool _generationComplete;
@@ -44,12 +49,95 @@ namespace Rooms
         {
             Random.InitState(seed);
 
+#if !UNITY_EDITOR
+            generateRandomSeedOnStart = true;
+#endif
+
+            if (generateRandomSeedOnStart) GenerateRandomSeed();
             _roomGrid = new int[_gridSizeX, _gridSizeY];
             _roomQueue = new Queue<Vector2Int>();
 
             Vector2Int initialRoomIndex = new Vector2Int(_gridSizeX / 2, _gridSizeY / 2);
             StartRoomGenerationFromRoom(initialRoomIndex);
             GenerateRooms();
+            SpawnFinalRoom(GetPerfectRooms(_rooms));
+
+            foreach (var room in _rooms)
+            {
+                OpenDoors(room, room.RoomIndex.x, room.RoomIndex.y);
+            }
+        }
+
+        private void SpawnFinalRoom(List<Room> rooms)
+        {
+            Room randomRoom = rooms[Random.Range(0, rooms.Count)];
+            Vector2Int index = randomRoom.RoomIndex;
+
+            _rooms.Remove(randomRoom);
+            Destroy(randomRoom.gameObject);
+            
+            var finalRoom = Instantiate(endRoom, GetPositionFromGridIndex(index), Quaternion.identity);
+            finalRoom.transform.parent = transform;
+            finalRoom.RoomIndex = index;
+            finalRoom.Init();
+            _rooms.Add(finalRoom);
+        }
+
+        private List<Room> GetPerfectRooms(List<Room> rooms)
+        {
+            //найти все комнаты с одним соседом
+            List<Room> roomsWithNoNeighbours = new List<Room>(rooms);
+            foreach (var room in roomsWithNoNeighbours.ToList())
+            {
+                if (CountAdjacentRooms(room.RoomIndex) > 1)
+                {
+                    roomsWithNoNeighbours.Remove(room);
+                }
+            }
+            //найти все комнаты, которые рядом со стартовой комнатой
+            List<Room> adjacentToStartRooms = new List<Room>();
+            Room leftRoomScript = GetRoomAt(new Vector2Int(_startIndex.x - 1, _startIndex.y));
+            Room rightRoomScript = GetRoomAt(new Vector2Int(_startIndex.x + 1, _startIndex.y));
+            Room topRoomScript = GetRoomAt(new Vector2Int(_startIndex.x, _startIndex.y + 1));
+            Room bottomRoomScript = GetRoomAt(new Vector2Int(_startIndex.x, _startIndex.y - 1));
+            if (leftRoomScript is not null) adjacentToStartRooms.Add(leftRoomScript);
+            if (rightRoomScript is not null) adjacentToStartRooms.Add(rightRoomScript);
+            if (topRoomScript is not null) adjacentToStartRooms.Add(topRoomScript);
+            if (bottomRoomScript is not null) adjacentToStartRooms.Add(bottomRoomScript);
+            //найти их разницу между ними
+            List<Room> perfectForBossRooms = new List<Room>(roomsWithNoNeighbours);
+            foreach (var room in adjacentToStartRooms)
+            {
+                perfectForBossRooms.Remove(room);
+            }
+            //если в этой разнице что-то есть, то берём случайную комнату оттуда
+            if (perfectForBossRooms.Count > 0)
+            {
+                //replace room with boss room
+                return perfectForBossRooms;
+            }
+
+            //иначе мы берём из того, что осталось :(
+            if (roomsWithNoNeighbours.Count > 0)
+            {
+                return roomsWithNoNeighbours;
+            }
+
+            List<Room> roomsNotAdjacentToStart = new List<Room>(rooms);
+            foreach (var room in adjacentToStartRooms)
+            {
+                roomsNotAdjacentToStart.Remove(room);
+            }
+
+            if (roomsNotAdjacentToStart.Count > 0)
+            {
+                return roomsWithNoNeighbours;
+            }
+
+            //any from rooms but not start
+            List<Room> iDontGiveAFuckAtThisPoint = new List<Room>(rooms);
+            iDontGiveAFuckAtThisPoint.Remove(GetRoomAt(_startIndex));
+            return iDontGiveAFuckAtThisPoint;
         }
 
         private void GenerateRooms()
@@ -69,9 +157,24 @@ namespace Rooms
                 }
                 else if (!_generationComplete)
                 {
-                    Debug.Log($"Generation Complete, {_rooms.Count} rooms created");
-                    _generationComplete = true;
-                    break;
+                    if (_rooms.Count >= minRooms)
+                    {
+                        Debug.Log($"Generation Complete, {_rooms.Count} rooms created");
+                        _generationComplete = true;
+                        break;
+                    }
+                    else
+                    {
+                        Debug.Log($"Generation incomplete, stopped at {_rooms.Count}. Trying to generate more...");
+                        Vector2Int roomIndex = _rooms.Last().RoomIndex;
+                        int gridX = roomIndex.x;
+                        int gridY = roomIndex.y;
+
+                        TryGenerateRoom(new Vector2Int(gridX - 1, gridY));
+                        TryGenerateRoom(new Vector2Int(gridX + 1, gridY));
+                        TryGenerateRoom(new Vector2Int(gridX, gridY + 1));
+                        TryGenerateRoom(new Vector2Int(gridX, gridY - 1));
+                    }
                 }
             }
         }
@@ -85,8 +188,9 @@ namespace Rooms
             _roomQueue.Enqueue(roomIndex);
             var initialRoom = Instantiate(startRoom, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
             initialRoom.RoomIndex = roomIndex;
+            initialRoom.transform.parent = transform;
             initialRoom.Init();
-            _rooms.Add(initialRoom); 
+            _rooms.Add(initialRoom);
         }
 
         private bool TryGenerateRoom(Vector2Int roomIndex)
@@ -100,7 +204,7 @@ namespace Rooms
             if (_rooms.Count >= maxRooms)
                 return false;
             float random = Random.value;
-            if (random < randomMagicNumber) 
+            if (random < randomMagicNumber)
                 return false;
             if (roomIndex == _startIndex)
                 return false;
@@ -117,10 +221,8 @@ namespace Rooms
             var newRoom = Instantiate(randomRoomPrefab, GetPositionFromGridIndex(roomIndex), Quaternion.identity);
             newRoom.RoomIndex = roomIndex;
             newRoom.name = $"Room-{_rooms.Count}";
+            newRoom.transform.parent = transform;
             _rooms.Add(newRoom);
-
-            OpenDoors(newRoom, x, y);
-
             return true;
         }
 

@@ -12,7 +12,9 @@ namespace Player
         private bool _isInitialized;
 
         private PlayerData _data;
-    
+
+        public Vector2 Velocity => rb.velocity;
+        
         public void Init(PlayerData data, CustomPlayerInput input)
         {
             if (_isInitialized) return;

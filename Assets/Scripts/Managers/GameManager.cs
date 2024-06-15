@@ -1,4 +1,5 @@
 ﻿using System;
+using Data;
 using NaughtyAttributes;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace Managers
                 return;
             }
 
+            ProgressManager.Instance.CreateNewRunData();
             Instance = this;
         }
         
@@ -36,5 +38,12 @@ namespace Managers
             IsPaused = true;
             Unpaused?.Invoke();
         }
+
+        public void MoveToNextStage()
+        {
+            ProgressManager.Instance.GetCurrentRunData().stage++;
+            LevelManger.Instance.LoadNewStage();
+        }
     }
+    
 }

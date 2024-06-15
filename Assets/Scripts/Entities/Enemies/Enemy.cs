@@ -1,4 +1,5 @@
 ﻿using System;
+using Data;
 using Entities.Enemies.Movement;
 using UnityEngine;
 
@@ -28,6 +29,8 @@ namespace Entities.Enemies
             if (CurrentHealth <= 0)
             {
                 Died?.Invoke();
+                ProgressManager.Instance.GetRecordsData().totalEnemiesKilled++;
+                ProgressManager.Instance.GetCurrentRunData().enemiesKilled++;
                 Destroy(gameObject);
             }
         }

@@ -9,6 +9,7 @@ namespace Player
     {
         public static Player Instance { get; private set; }
         public Transform PlayerTransform => playerController.transform;
+        public Vector2 PlayerVelocity => playerController.Velocity;
 
         [Header("Player")] 
         [SerializeField] private PlayerData data;
